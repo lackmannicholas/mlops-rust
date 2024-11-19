@@ -1,6 +1,20 @@
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
+
+use actix_web::{App, HttpServer};
+use listenfd::ListenFd;
+use std::env;
+
+mod db;
+mod employees;
+mod error_handler;
+mod schema;
+
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().ok();
+    dotenv::dotenv().ok();
     db::init();
     let mut listenfd = ListenFd::from_env();
     let mut server = HttpServer::new(|| App::new().configure(employees::init_routes));
