@@ -15,5 +15,6 @@ lazy_static = "1.4"
 listenfd = "0.3"
 serde = "1.0"
 serde_json = "1.0"
+rand = "0.8"
 r2d2 = "0.8"
 uuid = { version = "0.6", features = ["serde", "v4"] }

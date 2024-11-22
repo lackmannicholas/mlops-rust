@@ -19,3 +19,11 @@ test:
 
 run:
 	@$(CARGO) run
+
+# make build
+build-release:
+	@$(CARGO) build --release
+
+# make build local
+build:
+	@$(CARGO) build
