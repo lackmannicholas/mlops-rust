@@ -27,3 +27,11 @@ build-release:
 # make build local
 build:
 	@$(CARGO) build
+
+# make docker build
+docker-build:
+	@docker build -t rust-api .
+
+# make docker run
+docker-run:
+	@docker run -p 8080:8080 rust-api

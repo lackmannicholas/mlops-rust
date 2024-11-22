@@ -1,12 +1,18 @@
 FROM rust:latest as builder
-ENV APP webdocker
-WORKDIR /usr/src/$APP
-COPY . .
-RUN cargo install --path .
- 
-FROM debian:buster-slim
-RUN apt-get update && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /usr/local/cargo/bin/$APP /usr/local/bin/$APP
-#export this actix web service to port 8080 and 0.0.0.0
+
+# build app
+WORKDIR /app
+COPY . /app
+RUN cargo build --release
+
+# Use a minimal base image for the final container
+FROM gcr.io/distroless/cc-debian12
+
+# Copy the built binary from the builder stage
+COPY --from=builder /app/target/release/api /
+
+# Expose the port that the Actix-web server will listen on
 EXPOSE 8080
-CMD ["api"]
+
+# Set the command to run the Actix-web server
+CMD ["./api"]
