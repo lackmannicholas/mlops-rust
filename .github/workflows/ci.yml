@@ -39,7 +39,7 @@ jobs:
     - name: configure aws credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: mlops-rust-ecr-upload
+        role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/mlops-rust-ecr-upload
         role-session-name: ecr-upload
         aws-region: us-east-1
 
