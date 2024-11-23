@@ -43,6 +43,10 @@ jobs:
         role-session-name: ecr-upload
         aws-region: us-east-1
 
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
     - name: Build and Push to ECR
       run: |
         TAG=`git rev-parse --short HEAD`
