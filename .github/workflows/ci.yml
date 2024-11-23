@@ -47,7 +47,7 @@ jobs:
       run: |
         TAG=`git rev-parse --short HEAD`
         echo "tag=$TAG" >> $GITHUB_OUTPUT
-        APP_REPO="${{ secrets.account_id }}.dkr.ecr.us-east-1.amazonaws.com/mlops-rust"
+        APP_REPO="${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/mlops-rust"
 
         cd api
 
