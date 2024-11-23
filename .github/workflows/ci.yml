@@ -1,0 +1,58 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+
+jobs:
+  build-and-test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: |
+        cd api
+        make build
+    - name: Run tests
+      run: |
+        cd api
+        make test
+
+  docker-build:
+
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: mlops-rust-ecr-upload
+        role-session-name: ecr-upload
+        aws-region: us-east-1
+
+    - name: Build and Push to ECR
+      run: |
+        TAG=`git rev-parse --short HEAD`
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+        APP_REPO="${{ secrets.account_id }}.dkr.ecr.us-east-1.amazonaws.com/mlops-rust"
+
+        cd api
+
+        docker build -t $APP_REPO:$TAG \
+                      -t $APP_REPO:production \
+                      -f Dockerfile  --platform linux/amd64 --build-arg GIT_COMMIT_ID=$(git rev-parse --short "$GITHUB_SHA") .
+        docker push --all-tags $APP_REPO:$TAG
+
