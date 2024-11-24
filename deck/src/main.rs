@@ -12,17 +12,19 @@ fn main() {
         "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King",
     ];
 
-    let deck = Deck { cards: Vec::new() };
+    // create a new cards vector of strings
+    let mut cards: Vec<String> = Vec::new();
 
     // double for loop to create a deck of cards
     for suit in suits {
         for rank in ranks {
             // add to suit and rank combination to the deck
-            deck.cards.push(format!("{} of {}", rank, suit));
+            cards.push(format!("{} of {}", rank, suit));
         }
     }
 
-    
+    let deck = Deck { cards };
+
 
     println!("Here's your deck: {:?}", deck);
 }

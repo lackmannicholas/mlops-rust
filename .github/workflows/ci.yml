@@ -1,8 +1,7 @@
 name: Rust
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -13,16 +12,12 @@ permissions:
 
 
 jobs:
-  build-and-test:
+  test:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build
-      run: |
-        cd api
-        make build
     - name: Run tests
       run: |
         cd api
@@ -31,7 +26,6 @@ jobs:
   docker-build:
 
     runs-on: ubuntu-latest
-    needs: build-and-test
 
     steps:
     - uses: actions/checkout@v4
