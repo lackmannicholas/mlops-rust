@@ -1,44 +1,56 @@
-/*An actix Microservice that has multiple routes:
-A.  / that turns a hello world
+/*An axum Microservice that has multiple routes:
+A.  / that returns a hello world
 B. /fruit that returns a random fruit
 C. /health that returns a 200 status code
 D. /version that returns the version of the service
 */
 
-use actix_web::{web, App, HttpServer, HttpResponse, Responder};
+use axum::{
+    http::StatusCode, response::IntoResponse, routing::get, Json, Router
+};
 use rand::seq::SliceRandom;
 use std::env;
+use tokio::main;
 
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello World!")
+mod deck;
+
+async fn hello() -> impl IntoResponse {
+    "Hello World!"
 }
 
-async fn fruit() -> impl Responder {
-    let fruits = vec!["Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape", "Honeydew", "Jackfruit", "Kiwi", "Lemon", "Mango", "Nectarine", "Orange", "Papaya", "Quince", "Raspberry", "Strawberry", "Tangerine", "Ugli", "Vineyard Peach", "Watermelon", "Xigua", "Yellow Passion Fruit", "Zucchini"];
+async fn fruit() -> impl IntoResponse {
+    let fruits = vec![
+        "Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape", "Honeydew", "Jackfruit", "Kiwi",
+        "Lemon", "Mango", "Nectarine", "Orange", "Papaya", "Quince", "Raspberry", "Strawberry", "Tangerine",
+        "Ugli", "Vineyard Peach", "Watermelon", "Xigua", "Yellow Passion Fruit", "Zucchini"
+    ];
     let fruit = fruits.choose(&mut rand::thread_rng()).unwrap();
-    // return fruit as repsonse body
-    HttpResponse::Ok().body(*fruit)
+    (*fruit).to_string()
 }
 
-async fn health() -> impl Responder {
-    HttpResponse::Ok().finish()
+async fn health() -> impl IntoResponse {
+    StatusCode::OK
 }
 
-async fn version() -> impl Responder {
-    let version = env!("CARGO_PKG_VERSION");
-    HttpResponse::Ok().body(version)
+async fn version() -> impl IntoResponse {
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
-        App::new()
-            .route("/", web::get().to(hello))
-            .route("/fruit", web::get().to(fruit))
-            .route("/health", web::get().to(health))
-            .route("/version", web::get().to(version))
-    })
-    .bind("0.0.0.0:8080")?
-    .run()
-    .await
+async fn deck() -> impl IntoResponse {
+    let deck = deck::Deck::new();
+    Json(deck).into_response()
+}
+
+#[main]
+async fn main() {
+    // build our application with a route
+    let app = Router::new()
+        .route("/", get(hello))
+        .route("/fruit", get(fruit))
+        .route("/health", get(health))
+        .route("/version", get(version))
+        .route("/deck", get(deck));
+
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }

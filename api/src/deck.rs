@@ -1,10 +1,12 @@
-#[derive(Debug)]
-struct Deck {
+use serde::Serialize;
+
+#[derive(Debug, Serialize)]
+pub struct Deck {
     cards: Vec<String>,
 }
 
 impl Deck {
-    fn new() -> Self {
+    pub fn new() -> Deck {
         // array of suits for a deck of cards
         let suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
 
@@ -28,8 +30,20 @@ impl Deck {
     }
 }
 
-fn main() {
-    let deck = Deck::new();
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    println!("Here's your deck: {:#?}", deck);
+    #[test]
+    fn test_deck_creation() {
+        let deck = Deck::new();
+        assert_eq!(deck.cards.len(), 52);
+    }
+
+    #[test]
+    fn test_deck_contains_card() {
+        let deck = Deck::new();
+        assert!(deck.cards.contains(&"Ace of Hearts".to_string()));
+        assert!(deck.cards.contains(&"King of Spades".to_string()));
+    }
 }
